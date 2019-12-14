@@ -14,8 +14,11 @@
 		"ui.js"
 	],
 	"dependencies": {
+		"aws-sdk": "^2.585.0",
 		"import-jsx": "^3.0.0",
 		"ink": "^2.6.0",
+		"ink-select-input": "^3.1.2",
+		"ink-spinner": "^3.0.1",
 		"meow": "^6.0.0",
 		"prop-types": "^15.7.2",
 		"react": "^16.12.0"

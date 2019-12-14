@@ -19,4 +19,4 @@ const cli = meow(`
 	  Hello, Jane
 `);
 
-render(React.createElement(ui, cli.flags));
+render(React.createElement(ui, cli.flags), {experimental: true});
