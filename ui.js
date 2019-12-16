@@ -2,49 +2,39 @@
 const React = require('react');
 const T = require('prop-types');
 const {Text, Color, Box, useInput, useApp} = require('ink');
-const Dynamo = require('aws-sdk/clients/dynamodb');
-const inkSelectInput = require('ink-select-input');
-const inkSpinner = require('ink-spinner');
+const shell = require('shelljs');
+const SelectInput = require('ink-select-input').default;
+const Spinner = require('ink-spinner').default;
 
-const {default: SelectInput} = inkSelectInput;
-const {default: Spinner} = inkSpinner;
-const {useState, useEffect} = React;
-const dynamo = new Dynamo({region: 'ap-southeast-2'});
+const {useState, useEffect, memo} = React;
 
-const listTables = () => dynamo.listTables().promise();
-const describeTable = name => dynamo.describeTable({TableName: name}).promise();
+const callDynamo = command =>
+	new Promise((resolve, reject) =>
+		shell.exec(
+			`aws dynamodb ${command} --output json`,
+			{silent: true},
+			(code, stdout, stderr) => {
+				if (code) {
+					reject(stderr);
+				} else resolve(JSON.parse(stdout));
+			}
+		)
+	);
 
-const TableList = ({onSelect}) => {
-	const [{loading, error, tables}, setResult] = useState({loading: true});
+const useDynamo = (command, inputs = [], {skip} = {}) => {
+	const [{loading, error, data}, setResult] = useState({loading: true});
 
 	useEffect(() => {
-		(async () => {
-			try {
-				const result = await listTables();
-				setResult({
-					tables: result.TableNames.map(label => ({label, value: label}))
-				});
-			} catch (error_) {
-				setResult({error: error_});
-			}
-		})();
-	}, []);
+		if (!skip) {
+			setResult({loading: true});
+			callDynamo(command)
+				/* eslint-disable-next-line promise/prefer-await-to-then */
+				.then(data => setResult({data}))
+				.catch(error_ => setResult({error: error_}));
+		}
+	}, [command, skip]);
 
-	const handleSelect = ({value}) => onSelect(value);
-
-	return loading ? (
-		<Spinner type="growVertical" />
-	) : error ? (
-		<Text>
-			<Color redBright>[{error.message || 'Unknown error'}]</Color>
-		</Text>
-	) : (
-		<SelectInput items={tables} onSelect={handleSelect} />
-	);
-};
-
-TableList.propTypes = {
-	onSelect: T.func.isRequired
+	return {loading, error, data};
 };
 
 const KeySchema = ({data}) => (
@@ -61,7 +51,32 @@ KeySchema.propTypes = {
 	data: T.arrayOf(T.object.isRequired).isRequired
 };
 
-const TableDetails = ({data}) => {
+const Indexes = memo(({data, color}) => {
+	const colorProp = {[color]: true};
+	return data.map(index => {
+		return (
+			<Box key={index.IndexName}>
+				<Box marginRight={3}>
+					<Text bold>
+						<Color {...colorProp}>{index.IndexName}</Color>
+					</Text>
+				</Box>
+				<Box>
+					<KeySchema data={index.KeySchema} />
+				</Box>
+			</Box>
+		);
+	});
+});
+
+const Ixes = () => <Box><Text>One lala lala</Text><Text>Two lalalalalala</Text></Box>
+
+Indexes.propTypes = {
+	data: T.object.isRequired,
+	color: T.oneOf(['yellow', 'green']).isRequired
+};
+
+const TableDetails = memo(({data}) => {
 	const lsis = data.LocalSecondaryIndexes || [];
 	const gsis = data.GlobalSecondaryIndexes || [];
 	return (
@@ -70,6 +85,9 @@ const TableDetails = ({data}) => {
 				<Text bold>
 					<Color cyan>{data.TableName}</Color>
 				</Text>
+			</Box>
+			<Box>
+				<KeySchema data={data.KeySchema} />
 			</Box>
 			<Box>
 				<Text bold>
@@ -81,77 +99,60 @@ const TableDetails = ({data}) => {
 					<Color green>{gsis.length} GSI</Color>
 				</Text>
 			</Box>
-			<Box>
-				<KeySchema data={data.KeySchema} />
+
+			<Box marginTop={1} flexDirection="column">
+				<Ixes data={lsis} color="yellow" />
 			</Box>
 
 			<Box marginTop={1} flexDirection="column">
-				{lsis.map(lsi => {
-					return (
-						<Box key={lsi.IndexName}>
-							<Box marginRight={3}>
-								<Text>
-									<Color yellow>{lsi.IndexName}</Color>
-								</Text>
-							</Box>
-							<Box>
-								<KeySchema data={lsi.KeySchema} />
-							</Box>
-						</Box>
-					);
-				})}
-			</Box>
-
-			<Box marginTop={1} flexDirection="column">
-				{gsis.map(gsi => {
-					return (
-						<Box key={gsi.IndexName}>
-							<Box marginRight={3}>
-								<Text>
-									<Color green>{gsi.IndexName}</Color>
-								</Text>
-							</Box>
-							<Box>
-								<KeySchema data={gsi.KeySchema} />
-							</Box>
-						</Box>
-					);
-				})}
+				<Ixes data={gsis} color="green" />
 			</Box>
 		</Box>
 	);
-};
+});
 
 TableDetails.propTypes = {
 	data: T.object.isRequired
 };
 
-const TableDescription = ({name}) => {
-	const [{loading, error, table}, setResult] = useState({loading: true});
+const TableDescription = memo(({name}) => {
+	const {
+		loading,
+		error,
+		data
+	} = useDynamo(`describe-table --table-name=${name}`, [name], {skip: !name});
 
-	useEffect(() => {
-		describeTable(name)
-			.then(result => setResult({table: result.Table}))
-			.catch(error_ => setResult({error: error_}));
-	}, [name]);
+	const table = data && data.Table;
 
-	return loading ? (
-		<Spinner type="growVertical" />
-	) : error ? (
-		<Text>
-			<Color redBright>[{(error && error.message) || 'Unknown error'}]</Color>
-		</Text>
-	) : (
-		<TableDetails data={table} />
+	return (
+		<Box>
+			{loading ? (
+				<Spinner type="bouncingBar" />
+			) : error ? (
+				<Text>
+					<Color redBright>[{error || 'Unknown error'}]</Color>
+				</Text>
+			) : (
+				<TableDetails data={table} />
+			)}
+		</Box>
 	);
-};
+});
 
 TableDescription.propTypes = {
 	name: T.string.isRequired
 };
 
-const App = () => {
+const App = memo(({filter = ''}) => {
 	const {exit} = useApp();
+	const {loading, error, data} = useDynamo('list-tables');
+	const [table, selectTable] = useState();
+
+	useEffect(() => {
+		if (error) {
+			setTimeout(exit, 1000);
+		}
+	}, [error, exit]);
 
 	useInput(input => {
 		if (input === 'q') {
@@ -159,19 +160,39 @@ const App = () => {
 		}
 	});
 
-	const [table, selectTable] = useState();
+	const tables =
+		data &&
+		data.TableNames.filter(label => label.includes(filter)).map(label => ({
+			label,
+			value: label
+		}));
+
 	return (
 		<Box flexGrow={1}>
-			<Box textWrap="truncate-middle" marginRight={1}>
-				<TableList onSelect={selectTable} />
+			<Box textWrap="truncate-middle" marginRight={2}>
+				{loading ? (
+					<Spinner type="bouncingBar" />
+				) : error ? (
+					<Text>
+						<Color redBright>[{error || 'Unknown error'}]</Color>
+					</Text>
+				) : (
+					<SelectInput
+						items={tables}
+						onSelect={({value}) => selectTable(value)}
+					/>
+				)}
 			</Box>
+
 			<Box flexGrow={1} textWrap="wrap">
-				<Text>
-					{table ? <TableDescription name={table} /> : 'Select a table'}
-				</Text>
+				{table ? <TableDescription name={table} /> : null}
 			</Box>
 		</Box>
 	);
+});
+
+App.propTypes = {
+	filter: T.string
 };
 
 module.exports = App;

@@ -12,11 +12,14 @@ const cli = meow(`
 	  $ dynacli
 
 	Options
-		--name  Your name
+	  --filter  A filter on the tables to be listed
 
 	Examples
-	  $ dynacli --name=Jane
-	  Hello, Jane
+	  $ dynacli
+	  Will list all tables
+
+	  $ dynacli --filter='-dev'
+	  Will list all tables containing '-dev'
 `);
 
 render(React.createElement(ui, cli.flags), {experimental: true});
