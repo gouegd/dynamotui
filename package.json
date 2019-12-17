@@ -1,6 +1,6 @@
 {
 	"name": "dynacli",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"license": "MIT",
 	"bin": "cli.js",
 	"engines": {
@@ -11,7 +11,9 @@
 	},
 	"files": [
 		"cli.js",
-		"app.js"
+		"app.js",
+		"api.js",
+		"compos/TableDetails.js"
 	],
 	"dependencies": {
 		"aws-sdk": "^2.585.0",
