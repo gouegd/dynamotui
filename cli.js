@@ -2,8 +2,9 @@
 'use strict';
 const React = require('react');
 const importJsx = require('import-jsx');
-const blessed = require('blessed');
-const {render} = require('react-blessed');
+const blessed = require('neo-blessed');
+const { createBlessedRenderer } = require('react-blessed');
+const render = createBlessedRenderer(blessed);
 
 const meow = require('meow');
 
@@ -28,7 +29,7 @@ const cli = meow(`
 const screen = blessed.screen({
 	autoPadding: true,
 	smartCSR: true,
-	title: 'dynacli'
+	title: 'dynacli',
 });
 
 // Adding a way to quit the program
