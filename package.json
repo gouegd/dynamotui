@@ -1,14 +1,13 @@
 {
 	"name": "dynacli",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"license": "MIT",
 	"bin": "cli.js",
 	"engines": {
 		"node": ">=10"
 	},
 	"scripts": {
-		"lint": "eslint '**/*.js'",
-		"test": "ava"
+		"lint": "eslint '**/*.js'"
 	},
 	"files": [
 		"cli.js",
@@ -27,7 +26,6 @@
 	"devDependencies": {
 		"@babel/preset-react": "^7.7.4",
 		"@babel/register": "^7.7.4",
-		"ava": "^2.4.0",
 		"chalk": "^3.0.0",
 		"eslint": "^6.7.2",
 		"eslint-config-prettier": "^6.7.0",
