@@ -11,25 +11,25 @@ const meow = require('meow');
 const App = importJsx('./app');
 
 const cli = meow(`
-	Usage
-	  $ dynacli
+  Usage
+    $ dynacli
 
-	Options
-	  --filter  A filter on the tables to be listed
+  Options
+    --filter  A filter on the tables to be listed
 
-	Examples
-	  $ dynacli
-	  Will list all tables
+  Examples
+    $ dynacli
+    Will list all tables
 
-	  $ dynacli --filter='-dev'
-	  Will list all tables containing '-dev'
+    $ dynacli --filter='-dev'
+    Will list all tables containing '-dev'
 `);
 
 // Creating our screen
 const screen = blessed.screen({
-	autoPadding: true,
-	smartCSR: true,
-	title: 'dynacli',
+  autoPadding: true,
+  smartCSR: true,
+  title: 'dynacli',
 });
 
 // Adding a way to quit the program
