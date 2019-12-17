@@ -26,7 +26,7 @@ const App = ({ filter: filterBy = '' }) => {
 	return (
 		<element>
 			<box left="center" height={3} border="line" shrink>
-				{` D y n a m o T U I `}
+				{` D y n a m o T u i `}
 			</box>
 			<box
 				bottom={0}
@@ -43,6 +43,7 @@ const App = ({ filter: filterBy = '' }) => {
 								ref={listRef}
 								keys
 								mouse
+								vi
 								items={tables}
 								style={{
 									item: { fg: 'white' },

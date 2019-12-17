@@ -59,7 +59,7 @@ const TableDetails = ({ name }) => {
 			<Indexes top={2} data={lsis} color="yellow" nocontent="(no LSI)" />
 
 			<Indexes
-				top={4 + lsis.length}
+				top={3 + (lsis.length || 1)}
 				data={gsis}
 				color="green"
 				nocontent="(no GSI)"
