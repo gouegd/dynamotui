@@ -12,24 +12,20 @@ const App = importJsx('./app');
 
 const cli = meow(`
   Usage
-    $ dynacli
+    $ dynamotui
 
   Options
-    --filter  A filter on the tables to be listed
+    --filter Pass a name, it will filter out tables names that do not contain it
 
   Examples
-    $ dynacli
-    Will list all tables
-
-    $ dynacli --filter='-dev'
-    Will list all tables containing '-dev'
+    $ dynamotui --filter=-dev
 `);
 
 // Creating our screen
 const screen = blessed.screen({
   autoPadding: true,
   smartCSR: true,
-  title: 'dynacli',
+  title: 'dynamotui',
 });
 
 // Adding a way to quit the program

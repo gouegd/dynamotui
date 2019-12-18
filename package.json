@@ -1,6 +1,6 @@
 {
-	"name": "dynacli",
-	"version": "1.0.1",
+	"name": "dynamotui",
+	"version": "1.0.0",
 	"license": "MIT",
 	"bin": "cli.js",
 	"engines": {
@@ -26,8 +26,6 @@
 		"shelljs": "^0.8.3"
 	},
 	"devDependencies": {
-		"@babel/preset-react": "^7.7.4",
-		"@babel/register": "^7.7.4",
 		"chalk": "^3.0.0",
 		"eslint": "^6.7.2",
 		"eslint-config-prettier": "^6.7.0",
@@ -35,15 +33,5 @@
 		"eslint-plugin-react": "^7.17.0",
 		"eslint-plugin-react-hooks": "^2.3.0",
 		"prettier": "^1.19.1"
-	},
-	"ava": {
-		"require": [
-			"@babel/register"
-		]
-	},
-	"babel": {
-		"presets": [
-			"@babel/preset-react"
-		]
 	}
 }
